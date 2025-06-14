@@ -3,7 +3,7 @@
 Simple app for beauty output of shell script.
 
 ```sh
-wget https://raw.githubusercontent.com/pluttan/volumes/main/volumes.sh -q -O ./volumes.sh && chmod +x volumes.sh && ./volumes.sh <your script>.sh
+sh -c "$(wget -O- https://raw.githubusercontent.com/pluttan/volumes/main/volumes.sh)" -- <your script>.sh
 ```
 
 ## 📦 Installation  
@@ -22,6 +22,11 @@ chmod +x volumes.sh
 ```
 
 ## 🚀 Usage  
+
+```sh
+sh -c "$(wget -O- https://raw.githubusercontent.com/pluttan/volumes/main/volumes.sh)" -- <your script>.sh
+```
+
 ```sh
 ./volumes.sh your-script.sh  # Show colored output
 ```

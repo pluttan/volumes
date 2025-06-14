@@ -1,15 +1,15 @@
 #!/bin/bash
 wait(){ 
-    echo -e "\033[0;34m[WAIT]\033[0m    $1"
+    echo "\033[0;34m[WAIT]\033[0m    $1"
 }
 ok(){ 
-    echo -e "\033[0;32m[OK]\033[0m      $1" 
+    echo "\033[0;32m[OK]\033[0m      $1" 
 }
 warning(){ 
-    echo -e "\033[0;33m[WARNING]\033[0m $1" 
+    echo "\033[0;33m[WARNING]\033[0m $1" 
 }
 error() { 
-    echo -e "\033[0;31m[ERROR]\033[0m   $1" 
+    echo "\033[0;31m[ERROR]\033[0m   $1" 
 }
 clrl(){ 
     printf "\033[1A\033[2K" 
@@ -67,7 +67,7 @@ fi
 echo "          ෴ Volumes by pluttan ෴"
 echo ""
 clrl
-echo -e "\033[0;34m[INFO]\033[0m    Лог установки доступен в /var/log/install.log"
+echo "\033[0;34m[INFO]\033[0m    Лог установки доступен в /var/log/install.log"
 
 run_cmd "Обновление списка пакетов" "apt -qqq -y update"
 run_cmd "Установка python"    "apt -qqq -y install python3 python3-pip && pip3 install tqdm > /dev/null"
