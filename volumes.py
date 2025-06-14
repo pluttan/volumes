@@ -29,7 +29,7 @@ def print_error(msg): print_status(Colors.RED, "ERROR", msg)
 def clear_line(): sys.stdout.write("\033[1A\033[2K")
 
 def run_command(cmd: str, description: str, ignore_errors: bool = False):
-    print_wait(description.replace("\\n", "\n")) 
+    print_wait(description.replace("\\n", "\n"+" "*9)) 
     descriptionlines = description.count("\\n")*2 + 1
     description = description.split("\\n")[0].replace("\\r", "").strip()
     log(f"START: {description}\nCOMMAND: {cmd}")
