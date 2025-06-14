@@ -3,14 +3,14 @@
 Simple app for beauty output of shell script.
 
 ```sh
-wget https://clck.ru/3McCpj -o ./volumes.sh && chmod +x volumes.sh && ./volumes.sh <your script>.sh
+wget https://clck.ru/3McCpj -q -O ./volumes.sh && chmod +x volumes.sh && ./volumes.sh <your script>.sh
 ```
 
 ## 📦 Installation  
 
 Download with tiny url:
 ```sh
-wget https://clck.ru/3McCpj -o ./volumes.sh && chmod +x volumes.sh
+wget https://clck.ru/3McCpj -q -O ./volumes.sh && chmod +x volumes.sh
 ```
 
 Download with checksum verification:
