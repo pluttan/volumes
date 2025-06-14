@@ -64,7 +64,7 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-echo "Volumes by pluttan"
+echo "෴ Volumes by pluttan ෴"
 echo ""
 clrl
 echo -e "\033[0;34m[INFO]\033[0m    Лог установки доступен в /var/log/install.log"
