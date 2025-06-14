@@ -139,7 +139,7 @@ def main():
             " {percentage:3.0f}% "
         )
         with tqdm(
-            total=len(commands) + 2,
+            total=len(commands) + 3,
             desc="Установка",
             bar_format=custom_format, 
             ascii=" ┉",
@@ -149,7 +149,7 @@ def main():
             colour='white',
             position=0
         ) as pbar:
-            pbar.update(2)
+            pbar.update(3)
             i = 0
             for cmd, desc, ignore in commands:
                 i += 1

@@ -59,15 +59,20 @@ run_cmd() {
 
 printf '\033[2J\033[H\033[999B'
 
+if [ $# -eq 0 ]; then
+  echo "Usage: volumes.sh <your script>.sh"
+  exit 1
+fi
+
 echo "Volumes by pluttan"
 echo ""
 clrl
 echo -e "\033[0;34m[INFO]\033[0m    Лог установки доступен в /var/log/install.log"
 
 run_cmd "Обновление списка пакетов" "apt -qqq -y update"
-run_cmd "Установка python, curl"    "apt -qqq -y install curl python3 python3-pip && pip3 install tqdm > /dev/null"
-
-python3 ~/installrep.py installrep.py.sh
-
+run_cmd "Установка python"    "apt -qqq -y install python3 python3-pip && pip3 install tqdm > /dev/null"
+run_cmd "Установка volumes"   "wget https://raw.githubusercontent.com/pluttan/volumes/refs/heads/main/volumes.py ./"
+python3 ./volumes.py $1
+rm ./volumes.py
 
 
