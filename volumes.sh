@@ -1,4 +1,6 @@
 #!/bin/bash
+export TERM=xterm
+
 wait(){ 
     echo "\033[0;34m[WAIT]\033[0m    $1"
 }

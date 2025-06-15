@@ -2,8 +2,17 @@
 import subprocess
 import sys
 from datetime import datetime
-from time import sleep
 from tqdm import tqdm
+import time
+from itertools import cycle
+from threading import Thread, Event
+
+def spinner_update(pbar, spinner_chars, stop_event, desc_template):
+    spinner = cycle(spinner_chars)
+    while not stop_event.is_set():
+        # Обновляем описание с текущим спиннером
+        pbar.set_description(f"{desc_template} {next(spinner)}")
+        time.sleep(0.1)
 
 LOG_FILE = "/var/log/install.log"
 
@@ -144,8 +153,7 @@ def main():
             bar_format=custom_format, 
             ascii=" ┉",
             postfix="≻",
-            # dynamic_ncols=True,
-            ncols = 80,
+            ncols=80,
             colour='white',
             position=0
         ) as pbar:
@@ -153,13 +161,28 @@ def main():
             i = 0
             for cmd, desc, ignore in commands:
                 i += 1
-                pbar.refresh()               
-                run_command(cmd, desc, ignore)
+                pbar.refresh()
+                
+                # Запускаем спиннер в отдельном потоке
+                stop_spinner = Event()
+                spinner_thread = Thread(
+                    target=spinner_update,
+                    args=(pbar, '|/-\\', stop_spinner, f"Установка {desc}")
+                )
+                spinner_thread.start()
+                
+                try:
+                    run_command(cmd, desc, ignore)
+                finally:
+                    # Останавливаем спиннер и возвращаем обычное описание
+                    stop_spinner.set()
+                    spinner_thread.join()
+                    pbar.set_description("Установка")
+                
                 pbar.update(1)    
-                if (i == len(commands)):
-                    # clear_line()
+                if i == len(commands):
                     tqdm.write("\033[0;34m[INFO]\033[0m    Установка успешно завершена")
-                    pbar.refresh()     
+                    pbar.refresh()   
                 
     except Exception as e:
         print_error(f"Ошибка парсинга: {e}")
