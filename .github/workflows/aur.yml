@@ -98,5 +98,6 @@ jobs:
           git config user.name "pluttan"
           git config user.email "pluttan@example.com"
           git add PKGBUILD .SRCINFO
-          git commit -m "Update to ${{ steps.version.outputs.version }}"
-          git push
+          git commit -m "Update to ${{ steps.version.outputs.version }}" || echo "No changes"
+          git push origin HEAD:master
+
