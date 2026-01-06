@@ -1,6 +1,7 @@
 """Makefile parsing and execution"""
 
 import re
+import subprocess
 from pathlib import Path
 
 from .output import print_status
@@ -8,15 +9,63 @@ from .runner import run_command_with_output
 from .logger import Logger
 
 
+def expand_shell_functions(text: str) -> str:
+    """Expand $(shell ...) function calls by executing the command"""
+    result = text
+    
+    while '$(shell ' in result:
+        start = result.find('$(shell ')
+        if start == -1:
+            break
+        
+        # Find matching closing parenthesis, handling nested parens
+        depth = 0
+        end = start
+        for i, char in enumerate(result[start:]):
+            if char == '(':
+                depth += 1
+            elif char == ')':
+                depth -= 1
+                if depth == 0:
+                    end = start + i
+                    break
+        
+        if end > start:
+            full_match = result[start:end + 1]
+            cmd = result[start + 8:end]  # After "$(shell "
+            
+            try:
+                proc = subprocess.run(
+                    cmd, 
+                    shell=True, 
+                    capture_output=True, 
+                    text=True,
+                    timeout=10
+                )
+                output = proc.stdout.strip()
+            except Exception:
+                output = ""
+            
+            result = result[:start] + output + result[end + 1:]
+        else:
+            break
+    
+    return result
+
+
 def expand_variables(text: str, variables: dict) -> str:
     """Expand Make variables $(VAR) or ${VAR} in text"""
+    # First expand $(shell ...) functions
+    text = expand_shell_functions(text)
+    
     def replace_var(match):
         var_name = match.group(1) or match.group(2)
         return variables.get(var_name, match.group(0))
     
-    # Match $(VAR) or ${VAR}
+    # Match $(VAR) or ${VAR} but not $(shell ...)
     pattern = r'\$\(([A-Za-z_][A-Za-z0-9_]*)\)|\$\{([A-Za-z_][A-Za-z0-9_]*)\}'
     return re.sub(pattern, replace_var, text)
+
 
 
 def parse_variable_line(line: str) -> tuple[str, str] | None:
