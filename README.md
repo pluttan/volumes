@@ -44,6 +44,21 @@ sudo apt update
 sudo apt install vol
 ```
 
+### Homebrew (macOS/Linux)
+
+```bash
+brew tap pluttan/tap
+brew install vol
+```
+
+### AUR (Arch Linux)
+
+```bash
+yay -S vol
+# or
+paru -S vol
+```
+
 ### Linux Packages (Manual)
 
 Download the latest package for your distribution from the [Releases page](https://github.com/pluttan/volumes/releases).
