@@ -9,60 +9,204 @@ from .runner import run_command_with_output
 from .logger import Logger
 
 
-def expand_shell_functions(text: str) -> str:
-    """Expand $(shell ...) function calls by executing the command"""
+def find_matching_paren(text: str, start: int) -> int:
+    """Find the matching closing parenthesis, handling nested parens"""
+    depth = 0
+    for i, char in enumerate(text[start:]):
+        if char == '(':
+            depth += 1
+        elif char == ')':
+            depth -= 1
+            if depth == 0:
+                return start + i
+    return -1
+
+
+def expand_make_functions(text: str) -> str:
+    """Expand all GNU Make function calls like $(shell ...), $(word ...), etc."""
     result = text
+    max_iterations = 100  # Prevent infinite loops
     
-    while '$(shell ' in result:
-        start = result.find('$(shell ')
-        if start == -1:
-            break
+    for _ in range(max_iterations):
+        # Find innermost function call first (to handle nesting)
+        # Look for $(func where func is a known function name
+        functions = ['shell', 'word', 'words', 'firstword', 'lastword', 
+                     'subst', 'patsubst', 'strip', 'sort', 'dir', 'notdir',
+                     'suffix', 'basename', 'addsuffix', 'addprefix', 'wildcard']
         
-        # Find matching closing parenthesis, handling nested parens
-        depth = 0
-        end = start
-        for i, char in enumerate(result[start:]):
-            if char == '(':
-                depth += 1
-            elif char == ')':
-                depth -= 1
-                if depth == 0:
-                    end = start + i
+        found = False
+        for func in functions:
+            pattern = f'$({func} '
+            idx = result.find(pattern)
+            if idx != -1:
+                end = find_matching_paren(result, idx + 1)  # +1 to skip $
+                if end > idx:
+                    full_expr = result[idx:end + 1]
+                    inner = result[idx + len(pattern):end]
+                    
+                    # Recursively expand inner content first
+                    inner = expand_make_functions(inner)
+                    
+                    # Now evaluate the function
+                    value = evaluate_make_function(func, inner)
+                    result = result[:idx] + value + result[end + 1:]
+                    found = True
                     break
         
-        if end > start:
-            full_match = result[start:end + 1]
-            cmd = result[start + 8:end]  # After "$(shell "
-            
-            try:
-                proc = subprocess.run(
-                    cmd, 
-                    shell=True, 
-                    capture_output=True, 
-                    text=True,
-                    timeout=10
-                )
-                output = proc.stdout.strip()
-            except Exception:
-                output = ""
-            
-            result = result[:start] + output + result[end + 1:]
-        else:
+        if not found:
             break
     
     return result
 
 
+def evaluate_make_function(func: str, args: str) -> str:
+    """Evaluate a single Make function"""
+    
+    if func == 'shell':
+        try:
+            proc = subprocess.run(
+                args.strip(),
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            return proc.stdout.strip()
+        except Exception:
+            return ""
+    
+    elif func == 'word':
+        # $(word n,text) - returns nth word (1-indexed)
+        parts = args.split(',', 1)
+        if len(parts) == 2:
+            try:
+                n = int(parts[0].strip())
+                words = parts[1].strip().split()
+                if 1 <= n <= len(words):
+                    return words[n - 1]
+            except (ValueError, IndexError):
+                pass
+        return ""
+    
+    elif func == 'words':
+        # $(words text) - returns number of words
+        return str(len(args.strip().split()))
+    
+    elif func == 'firstword':
+        # $(firstword text) - returns first word
+        words = args.strip().split()
+        return words[0] if words else ""
+    
+    elif func == 'lastword':
+        # $(lastword text) - returns last word
+        words = args.strip().split()
+        return words[-1] if words else ""
+    
+    elif func == 'subst':
+        # $(subst from,to,text) - substitutes text
+        parts = args.split(',', 2)
+        if len(parts) == 3:
+            from_str = parts[0]
+            to_str = parts[1]
+            text = parts[2]
+            return text.replace(from_str, to_str)
+        return args
+    
+    elif func == 'patsubst':
+        # $(patsubst pattern,replacement,text) - pattern substitution with %
+        parts = args.split(',', 2)
+        if len(parts) == 3:
+            pattern = parts[0].strip()
+            replacement = parts[1].strip()
+            text = parts[2].strip()
+            
+            words = text.split()
+            result = []
+            for word in words:
+                if '%' in pattern:
+                    # Pattern matching with %
+                    prefix = pattern.split('%')[0]
+                    suffix = pattern.split('%')[1] if '%' in pattern else ''
+                    if word.startswith(prefix) and word.endswith(suffix):
+                        stem = word[len(prefix):len(word) - len(suffix) if suffix else None]
+                        new_word = replacement.replace('%', stem)
+                        result.append(new_word)
+                    else:
+                        result.append(word)
+                else:
+                    if word == pattern:
+                        result.append(replacement)
+                    else:
+                        result.append(word)
+            return ' '.join(result)
+        return args
+    
+    elif func == 'strip':
+        # $(strip text) - removes leading/trailing whitespace, collapses internal
+        return ' '.join(args.split())
+    
+    elif func == 'sort':
+        # $(sort list) - sorts words and removes duplicates
+        words = args.strip().split()
+        return ' '.join(sorted(set(words)))
+    
+    elif func == 'dir':
+        # $(dir names) - extracts directory part
+        words = args.strip().split()
+        return ' '.join(str(Path(w).parent) + '/' if '/' in w else './' for w in words)
+    
+    elif func == 'notdir':
+        # $(notdir names) - extracts non-directory part
+        words = args.strip().split()
+        return ' '.join(Path(w).name for w in words)
+    
+    elif func == 'suffix':
+        # $(suffix names) - extracts suffix
+        words = args.strip().split()
+        return ' '.join(Path(w).suffix for w in words if Path(w).suffix)
+    
+    elif func == 'basename':
+        # $(basename names) - removes suffix
+        words = args.strip().split()
+        return ' '.join(str(Path(w).with_suffix('')) for w in words)
+    
+    elif func == 'addsuffix':
+        # $(addsuffix suffix,names)
+        parts = args.split(',', 1)
+        if len(parts) == 2:
+            suffix = parts[0]
+            words = parts[1].strip().split()
+            return ' '.join(w + suffix for w in words)
+        return args
+    
+    elif func == 'addprefix':
+        # $(addprefix prefix,names)
+        parts = args.split(',', 1)
+        if len(parts) == 2:
+            prefix = parts[0]
+            words = parts[1].strip().split()
+            return ' '.join(prefix + w for w in words)
+        return args
+    
+    elif func == 'wildcard':
+        # $(wildcard pattern) - expands to matching files
+        import glob
+        matches = glob.glob(args.strip())
+        return ' '.join(matches)
+    
+    return ""
+
+
 def expand_variables(text: str, variables: dict) -> str:
     """Expand Make variables $(VAR) or ${VAR} in text"""
-    # First expand $(shell ...) functions
-    text = expand_shell_functions(text)
+    # First expand all Make functions
+    text = expand_make_functions(text)
     
     def replace_var(match):
         var_name = match.group(1) or match.group(2)
         return variables.get(var_name, match.group(0))
     
-    # Match $(VAR) or ${VAR} but not $(shell ...)
+    # Match $(VAR) or ${VAR} - simple variable names only
     pattern = r'\$\(([A-Za-z_][A-Za-z0-9_]*)\)|\$\{([A-Za-z_][A-Za-z0-9_]*)\}'
     return re.sub(pattern, replace_var, text)
 
