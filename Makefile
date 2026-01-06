@@ -101,7 +101,7 @@ dev: venv
 .PHONY: venv install build install-bin test clean dev publish packages publish-all
 
 # Версия (можно переопределить: make publish VERSION=2.1.0)
-VERSION ?= 2.0.2
+VERSION ?= 2.0.3
 GOARCH ?= arm64
 
 # Создание пакетов для всех менеджеров
