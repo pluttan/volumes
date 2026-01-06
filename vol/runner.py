@@ -311,8 +311,16 @@ class VolRunner:
         
         return True
     
-    def run_with_deps(self, task_name: str) -> bool:
+    def run_with_deps(self, task_name: str, extra_args: list[str] = None) -> bool:
         """Run task with all its dependencies"""
+        # Inject extra args as environment variables
+        if extra_args:
+            import os
+            for arg in extra_args:
+                if "=" in arg:
+                    key, value = arg.split("=", 1)
+                    os.environ[key] = value
+        
         tasks_to_run = self.config.resolve_dependencies(task_name)
         
         if not tasks_to_run:

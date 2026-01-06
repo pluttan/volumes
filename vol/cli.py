@@ -77,7 +77,8 @@ Examples:
     parser.add_argument("-l", "--list", action="store_true", help="List all tasks")
     parser.add_argument("-v", "--version", action="version", version="vol 2.0.0")
     
-    args = parser.parse_args()
+    # Use parse_known_args to allow passing extra args to commands (e.g. VERSION=2.0.0)
+    args, extra_args = parser.parse_known_args()
     
     # Load config early to get UI settings
     config_path = Path(args.config)
@@ -103,7 +104,7 @@ Examples:
         
         log_file = config.log_file if config else "./vol.log"
         logger = Logger(log_file)
-        success = run_script(script_path, logger)
+        success = run_script(script_path, logger, extra_args)
         
         if not success:
             print_error_footer()
@@ -123,7 +124,7 @@ Examples:
         
         print_header()
         
-        success = run_makefile(target_name)
+        success = run_makefile(target_name, extra_args)
         
         if not success:
             print_error_footer()
@@ -157,7 +158,7 @@ Examples:
     
     print_header()
     
-    success = runner.run_with_deps(args.task)
+    success = runner.run_with_deps(args.task, extra_args)
     
     if not success:
         print_error_footer()

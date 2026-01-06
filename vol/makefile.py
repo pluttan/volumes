@@ -239,7 +239,7 @@ def run_makefile_target(target_name: str, targets: dict, variables: dict, logger
     return True
 
 
-def run_makefile(target_name: str, makefile: str = "Makefile") -> bool:
+def run_makefile(target_name: str, extra_args: list[str] = None, makefile: str = "Makefile") -> bool:
     """Run a target from a Makefile"""
     from .inline_config import load_config_from_makefile
     from .progress import create_progress, advance_progress, stop_progress
@@ -253,6 +253,14 @@ def run_makefile(target_name: str, makefile: str = "Makefile") -> bool:
     
     try:
         targets, variables = parse_makefile(makefile)
+        
+        # Override variables from extra_args (e.g. VERSION=2.0.1)
+        if extra_args:
+            for arg in extra_args:
+                if "=" in arg:
+                    key, value = arg.split("=", 1)
+                    variables[key] = value
+                    
     except Exception as e:
         print_status("error", f"Ошибка парсинга Makefile: {e}")
         return False

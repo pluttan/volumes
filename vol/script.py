@@ -121,10 +121,18 @@ def parse_script(filename: str) -> list[tuple[str, str, bool, bool]]:
     return commands
 
 
-def run_script(filename: str, logger: Logger) -> bool:
+def run_script(filename: str, logger: Logger, extra_args: list[str] = None) -> bool:
     """Run a shell script with volumes syntax"""
     from .inline_config import load_config_from_script
     from .progress import create_progress, advance_progress, stop_progress
+    import os
+    
+    # Inject extra args as environment variables
+    if extra_args:
+        for arg in extra_args:
+            if "=" in arg:
+                key, value = arg.split("=", 1)
+                os.environ[key] = value
     
     # Try to load inline config from script
     load_config_from_script(filename)
