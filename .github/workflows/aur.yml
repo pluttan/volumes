@@ -1,0 +1,102 @@
+name: Update AUR Package
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  update-aur:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get Version
+        id: version
+        run: |
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/aur
+          chmod 600 ~/.ssh/aur
+          echo "Host aur.archlinux.org" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/aur" >> ~/.ssh/config
+          echo "  User aur" >> ~/.ssh/config
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
+      - name: Clone AUR Repo
+        run: |
+          git clone ssh://aur@aur.archlinux.org/vol.git aur-repo
+
+      - name: Update PKGBUILD
+        run: |
+          cd aur-repo
+          cat > PKGBUILD << 'EOF'
+          # Maintainer: pluttan <pluttan@example.com>
+          pkgname=vol
+          pkgver=${{ steps.version.outputs.version }}
+          pkgrel=1
+          pkgdesc="Universal build tool with beautiful terminal output"
+          arch=('x86_64' 'aarch64')
+          url="https://github.com/pluttan/volumes"
+          license=('MIT')
+          depends=('python>=3.11' 'python-rich')
+          makedepends=('python-build' 'python-installer' 'python-wheel')
+          source=("$pkgname-$pkgver.tar.gz::https://github.com/pluttan/volumes/archive/refs/tags/v$pkgver.tar.gz")
+          sha256sums=('SKIP')
+
+          build() {
+              cd "volumes-$pkgver"
+              python -m build --wheel --no-isolation
+          }
+
+          package() {
+              cd "volumes-$pkgver"
+              python -m installer --destdir="$pkgdir" dist/*.whl
+              install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+          }
+          EOF
+
+      - name: Generate .SRCINFO
+        run: |
+          cd aur-repo
+          docker run --rm -v "$PWD:/pkg" archlinux:latest bash -c "
+            pacman -Sy --noconfirm pacman-contrib
+            cd /pkg
+            makepkg --printsrcinfo > .SRCINFO
+          " || {
+            # Fallback: generate manually
+            cat > .SRCINFO << EOF
+          pkgbase = vol
+            pkgdesc = Universal build tool with beautiful terminal output
+            pkgver = ${{ steps.version.outputs.version }}
+            pkgrel = 1
+            url = https://github.com/pluttan/volumes
+            arch = x86_64
+            arch = aarch64
+            license = MIT
+            makedepends = python-build
+            makedepends = python-installer
+            makedepends = python-wheel
+            depends = python>=3.11
+            depends = python-rich
+            source = vol-${{ steps.version.outputs.version }}.tar.gz::https://github.com/pluttan/volumes/archive/refs/tags/v${{ steps.version.outputs.version }}.tar.gz
+            sha256sums = SKIP
+
+          pkgname = vol
+          EOF
+          }
+
+      - name: Commit and Push
+        run: |
+          cd aur-repo
+          git config user.name "pluttan"
+          git config user.email "pluttan@example.com"
+          git add PKGBUILD .SRCINFO
+          git commit -m "Update to ${{ steps.version.outputs.version }}"
+          git push
