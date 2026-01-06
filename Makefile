@@ -130,7 +130,7 @@ publish: build
 # 1. Сначала обновляем версию, чтобы бинарник собрался с правильной версией
 publish-all:
 	./scripts/bump_version.sh $(VERSION) # Обновление версий в файлах
-	@$(MAKE) -f Makefile packages VERSION=$(VERSION) # Пересобираем с новой версией
+	make packages VERSION=$(VERSION) # Пересобираем с новой версией
 	@echo "Creating GitHub release v$(VERSION) with all packages..." # Полный релиз
 	git add -A && git commit -m "chore: bump to v$(VERSION)" || true # Коммит версии
 	git push # Пуш изменений
