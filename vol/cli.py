@@ -75,7 +75,7 @@ Examples:
     parser.add_argument("task", nargs="?", help="Task name, make:<target>, or script file")
     parser.add_argument("-c", "--config", default="vol.toml", help="Config file (default: vol.toml)")
     parser.add_argument("-l", "--list", action="store_true", help="List all tasks")
-    parser.add_argument("-v", "--version", action="version", version="vol 2.0.3")
+    parser.add_argument("-v", "--version", action="version", version="vol ..")
     
     # Use parse_known_args to allow passing extra args to commands (e.g. VERSION=2.0.0)
     args, extra_args = parser.parse_known_args()
