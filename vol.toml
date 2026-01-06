@@ -1,0 +1,74 @@
+# Volumes v2 Configuration Example
+# https://github.com/pluttan/volumes
+
+[config]
+log_file = "./vol.log"
+show_header = true           # Показывать заголовок "෴ Volumes v2 ෴"
+show_error_message = true    # Показывать сообщение об ошибке
+header_text = "෴ Volumes v2 ෴"
+error_message = "Выполнение прервано из-за ошибки"
+
+# Цветовая тема
+[config.theme]
+wait = "blue"
+ok = "green"
+warn = "yellow"
+error = "red"
+info = "cyan"
+header = "cyan"
+
+# Простая задача с одной командой
+[hello]
+description = "Приветствие"
+commands = ["echo 'Hello from Volumes v2!'"]
+
+# Тест большого вывода для проверки скролла
+[big-output]
+description = "Большой вывод"
+commands = [
+    { cmd = "for i in $(seq 1 20); do echo \"Строка $i: Это тестовый вывод для проверки скролла в контекстном окне\"; sleep 0.2; done; sleep 20", desc = "Генерация 20 строк" }
+]
+
+# Задача с несколькими шагами и описаниями
+[build]
+description = "Сборка проекта"
+commands = [
+    { cmd = "echo 'Checking dependencies...'", desc = "Проверка зависимостей" },
+    { cmd = "sleep 1 && echo 'Compiling...'", desc = "Компиляция" },
+    { cmd = "echo 'Build complete!'", desc = "Финализация сборки" }
+]
+
+# Задача с игнорированием ошибок
+[lint]
+description = "Проверка кода"
+commands = [
+    { cmd = "echo 'Running linter...' && exit 1", desc = "Линтер", ignore_errors = true },
+    { cmd = "echo 'Linting done'", desc = "Завершение проверки" }
+]
+
+# Задача с зависимостями  
+[test]
+description = "Запуск тестов"
+depends = ["build"]
+commands = [
+    { cmd = "echo 'Running tests...'", desc = "Unit тесты" },
+    { cmd = "sleep 0.5 && echo 'All tests passed!'", desc = "Интеграционные тесты" }
+]
+
+# Полный пайплайн
+[deploy]
+description = "Деплой приложения"
+depends = ["test", "lint"]
+commands = [
+    { cmd = "echo 'Deploying to $HOME/app...'", desc = "Деплой на сервер" },
+    { cmd = "echo 'Deployment successful!'", desc = "Проверка деплоя" }
+]
+
+# Задача с использованием переменных окружения
+[env-demo]
+description = "Демо переменных окружения"
+commands = [
+    { cmd = "echo 'Home: $HOME'", desc = "Показать $HOME" },
+    { cmd = "echo 'User: $USER'", desc = "Показать $USER" },
+    { cmd = "echo 'PWD: $PWD'", desc = "Показать $PWD" }
+]

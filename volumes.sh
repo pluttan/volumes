@@ -72,8 +72,8 @@ clrl
 echo "\033[0;34m[INFO]\033[0m    Лог установки доступен в /var/log/install.log"
 
 run_cmd "Обновление списка пакетов" "apt -qqq -y update"
-run_cmd "Установка python"    "apt -qqq -y install python3 python3-tqdm"
-run_cmd "Установка volumes"   "wget https://raw.githubusercontent.com/pluttan/volumes/refs/heads/main/volumes.py"
+run_cmd "Установка python"          "apt -qqq -y install python3 python3-tqdm"
+run_cmd "Установка volumes"         "wget https://raw.githubusercontent.com/pluttan/volumes/refs/heads/main/volumes.py"
 python3 ./volumes.py $1
 rm ./volumes.py
 

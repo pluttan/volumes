@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vol"
+version = "2.0.0"
+description = "Universal build tool with beautiful terminal output"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "pluttan", email = "pluttan@example.com"}
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Build Tools",
+]
+keywords = ["build", "make", "terminal", "cli", "rich"]
+dependencies = [
+    "rich>=13.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/pluttan/volumes"
+Repository = "https://github.com/pluttan/volumes"
+Issues = "https://github.com/pluttan/volumes/issues"
+
+[project.scripts]
+vol = "vol.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["vol*"]
