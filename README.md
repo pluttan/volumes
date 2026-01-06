@@ -26,7 +26,25 @@ Vol is a beautiful, flexible build tool with rich terminal output. It supports *
 
 ## ■ Installation
 
-### Linux Packages (Recommended)
+### Quick Install (One-line)
+
+Installs the native package for your OS automatically.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pluttan/volumes/main/install.sh | sudo sh
+```
+
+### APT Repository (Debian/Ubuntu)
+
+To use `apt install`, add the repository:
+
+```bash
+echo "deb [trusted=yes] https://pluttan.github.io/volumes/debian/ ./" | sudo tee /etc/apt/sources.list.d/vol.list
+sudo apt update
+sudo apt install vol
+```
+
+### Linux Packages (Manual)
 
 Download the latest package for your distribution from the [Releases page](https://github.com/pluttan/volumes/releases).
 

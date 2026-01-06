@@ -1,0 +1,61 @@
+name: Publish APT Repo
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-repo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Install APT tools
+        run: sudo apt-get update && sudo apt-get install -y dpkg-dev gpg
+
+      - name: Download artifacts
+        run: |
+          mkdir -p dist/repo
+          # Download all deb files from the release
+          gh release download ${{ github.event.release.tag_name }} --pattern "*.deb" --dir dist/repo || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Repo Index
+        working-directory: dist/repo
+        run: |
+          # Generate Packages
+          dpkg-scanpackages . /dev/null > Packages
+          gzip -k -f Packages
+          
+          # Generate Release
+          echo "Origin: Vol" > Release
+          echo "Label: Vol" >> Release
+          echo "Suite: stable" >> Release
+          echo "Codename: stable" >> Release
+          echo "Architectures: amd64 arm64" >> Release
+          echo "Components: main" >> Release
+          echo "Description: Vol build tool repository" >> Release
+          
+          # Generate Release.gpg (Optional: Needs secret key, skipping for trusted=yes setup)
+          # gpg --clearsign -o InRelease Release
+          # gpg -abs -o Release.gpg Release
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist/repo
+          destination_dir: ./debian
+          keep_files: true  # Keep explicit 'keep_files' to not delete old versions if needed (though we might want clean state)
+          # Actually, for a simple repo, we might want to accumulate versions.
+          # But simpler to just host current release for now. 
+          # Let's clean to avoid mess for MVP.
