@@ -129,7 +129,8 @@ _vol() {
   if [ ${#commands[@]} -gt 0 ]; then
     _describe -t commands 'vol commands' commands
   fi
-}""")
+}
+compdef _vol vol""")
         else:
             print(f"Unsupported shell: {shell}. Use 'bash' or 'zsh'")
             sys.exit(1)

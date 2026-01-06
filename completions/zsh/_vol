@@ -7,3 +7,4 @@ _vol() {
     _describe -t commands 'vol commands' commands
   fi
 }
+compdef _vol vol
