@@ -109,7 +109,7 @@ NEXT_PATCH := $(shell echo $$(($(PATCH) + 1)))
 AUTO_VERSION := $(MAJOR).$(MINOR).$(NEXT_PATCH)
 
 # Версия: по умолчанию автоинкремент, или явно задать VERSION=x.y.z
-VERSION ?= ..
+VERSION ?= $(AUTO_VERSION)
 GOARCH ?= arm64
 
 # Создание пакетов для всех менеджеров
