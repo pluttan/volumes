@@ -100,13 +100,8 @@ dev: venv
 
 .PHONY: venv install build install-bin test clean dev publish packages publish-all bump
 
-# Получение текущей версии из pyproject.toml и автоинкремент
-CURRENT_VERSION := $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-MAJOR := $(word 1,$(subst ., ,$(CURRENT_VERSION)))
-MINOR := $(word 2,$(subst ., ,$(CURRENT_VERSION)))
-PATCH := $(word 3,$(subst ., ,$(CURRENT_VERSION)))
-NEXT_PATCH := $(shell echo $$(($(PATCH) + 1)))
-AUTO_VERSION := $(MAJOR).$(MINOR).$(NEXT_PATCH)
+# Получение текущей версии и автоинкремент patch
+AUTO_VERSION := $(shell V=$$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/'); MAJOR=$$(echo $$V | cut -d. -f1); MINOR=$$(echo $$V | cut -d. -f2); PATCH=$$(echo $$V | cut -d. -f3); echo $$MAJOR.$$MINOR.$$((PATCH + 1)))
 
 # Версия: по умолчанию автоинкремент, или явно задать VERSION=x.y.z
 VERSION ?= $(AUTO_VERSION)
