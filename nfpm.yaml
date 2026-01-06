@@ -1,0 +1,25 @@
+# nfpm configuration for multi-platform package generation
+name: vol
+arch: "${GOARCH}"
+platform: linux
+version: "${VERSION}"
+maintainer: "pluttan <pluttan@example.com>"
+description: "Universal build tool with beautiful terminal output"
+vendor: "pluttan"
+homepage: "https://github.com/pluttan/volumes"
+license: "MIT"
+
+contents:
+  - src: ./dist/vol
+    dst: /usr/local/bin/vol
+    file_info:
+      mode: 0755
+
+# Overrides for specific formats
+overrides:
+  deb:
+    depends:
+      - libc6
+  rpm:
+    depends:
+      - glibc

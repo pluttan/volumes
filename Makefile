@@ -98,5 +98,45 @@ clean:
 dev: venv
 	$(PIP) install rich # Установка rich для разработки
 
-.PHONY: venv install build install-bin test clean dev
+.PHONY: venv install build install-bin test clean dev publish packages publish-all
+
+# Версия (можно переопределить: make publish VERSION=2.1.0)
+VERSION ?= 2.0.0
+GOARCH ?= arm64
+
+# Создание пакетов для всех менеджеров
+packages: build
+	@mkdir -p dist/packages # Создание директории для пакетов
+	VERSION=$(VERSION) GOARCH=$(GOARCH) nfpm pkg --packager deb --target dist/packages/ # Сборка .deb
+	VERSION=$(VERSION) GOARCH=$(GOARCH) nfpm pkg --packager rpm --target dist/packages/ # Сборка .rpm
+	VERSION=$(VERSION) GOARCH=$(GOARCH) nfpm pkg --packager apk --target dist/packages/ # Сборка .apk (Alpine)
+	VERSION=$(VERSION) GOARCH=$(GOARCH) nfpm pkg --packager archlinux --target dist/packages/ # Сборка .pkg.tar.zst (Arch)
+	@echo "Packages created in dist/packages/"
+
+# Создание релиза на GitHub
+publish: build
+	@echo "Creating GitHub release v$(VERSION)..." # Создание релиза
+	git tag -a v$(VERSION) -m "Release v$(VERSION)" # Создание тега
+	git push origin v$(VERSION) # Пуш тега
+	gh release create v$(VERSION) dist/vol \
+		--title "Vol v$(VERSION)" \
+		--notes "Universal build tool with rich output" # Создание релиза с бинарником
+	@echo "Published v$(VERSION) to GitHub!"
+
+# Полная публикация: GitHub + все пакеты
+publish-all: packages
+	@echo "Creating GitHub release v$(VERSION) with all packages..." # Полный релиз
+	git tag -a v$(VERSION) -m "Release v$(VERSION)" || true # Создание тега
+	git push origin v$(VERSION) || true # Пуш тега
+	gh release create v$(VERSION) \
+		dist/vol \
+		dist/packages/*.deb \
+		dist/packages/*.rpm \
+		dist/packages/*.apk \
+		dist/packages/*.pkg.tar.zst \
+		--title "Vol v$(VERSION)" \
+		--notes "Universal build tool with rich output" # Загрузка всех пакетов
+	@echo "Published v$(VERSION) with all packages!"
+
+
 

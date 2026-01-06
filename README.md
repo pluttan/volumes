@@ -14,7 +14,35 @@ Vol is a beautiful, flexible build tool with rich terminal output. It supports *
 
 ## 📦 Installation
 
-### From Binary
+### Linux Packages (Recommended)
+
+Download the latest package for your distribution from the [Releases page](https://github.com/pluttan/volumes/releases).
+
+**Debian/Ubuntu**
+```bash
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.deb
+sudo apt install ./vol_2.0.0_linux_arm64.deb
+```
+
+**Fedora/RHEL**
+```bash
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.rpm
+sudo rpm -i vol_2.0.0_linux_arm64.rpm
+```
+
+**Arch Linux**
+```bash
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.pkg.tar.zst
+sudo pacman -U vol_2.0.0_linux_arm64.pkg.tar.zst
+```
+
+**Alpine Linux**
+```bash
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.apk
+sudo apk add --allow-untrusted vol_2.0.0_linux_arm64.apk
+```
+
+### Manual Binary Install
 ```bash
 # Download latest release
 curl -L https://github.com/pluttan/volumes/releases/latest/download/vol -o vol
