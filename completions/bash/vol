@@ -1,0 +1,9 @@
+_vol_completion() {
+    local cur opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts=$(vol --completions 2>/dev/null)
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
+}
+complete -F _vol_completion vol

@@ -76,6 +76,7 @@ Examples:
     parser.add_argument("-c", "--config", default="vol.toml", help="Config file (default: vol.toml)")
     parser.add_argument("-l", "--list", action="store_true", help="List all tasks")
     parser.add_argument("-v", "--version", action="version", version="vol 2.0.10")
+    parser.add_argument("--completions", action="store_true", help=argparse.SUPPRESS)
     
     # Use parse_known_args to allow passing extra args to commands (e.g. VERSION=2.0.0)
     args, extra_args = parser.parse_known_args()
@@ -88,6 +89,51 @@ Examples:
         # Use default UI config
         set_ui_config(UIConfig())
         config = None
+        
+    # Handle autocompletion request
+    if args.completions:
+        choices = []
+        if config:
+            choices.extend(config.get_all_tasks().keys())
+        
+        # Add Makefile targets
+        makefile_targets = list_makefile_targets()
+        choices.extend([f"make:{t}" for t in makefile_targets.keys()])
+        
+        # Add scripts
+        choices.extend(glob.glob("*.sh"))
+        
+        # Print space-separated list
+        print(" ".join(sorted(unique for unique in set(choices))))
+        return
+        
+    # Handle 'completion' command to print scripts
+    if args.task == "completion":
+        shell = extra_args[0] if extra_args else "zsh"
+        if shell == "bash":
+            print("""_vol_completion() {
+    local cur opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    opts=$(vol --completions 2>/dev/null)
+    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    return 0
+}
+complete -F _vol_completion vol""")
+        elif shell == "zsh":
+            print("""#compdef vol
+
+_vol() {
+  local -a commands
+  commands=($(vol --completions 2>/dev/null))
+  if [ ${#commands[@]} -gt 0 ]; then
+    _describe -t commands 'vol commands' commands
+  fi
+}""")
+        else:
+            print(f"Unsupported shell: {shell}. Use 'bash' or 'zsh'")
+            sys.exit(1)
+        return
     
     # Auto-detect if task is a script file
     if args.task and Path(args.task).is_file():

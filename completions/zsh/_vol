@@ -1,0 +1,9 @@
+#compdef vol
+
+_vol() {
+  local -a commands
+  commands=($(vol --completions 2>/dev/null))
+  if [ ${#commands[@]} -gt 0 ]; then
+    _describe -t commands 'vol commands' commands
+  fi
+}
