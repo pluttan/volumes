@@ -126,6 +126,9 @@ publish: build
 # Полная публикация: GitHub + все пакеты
 publish-all: packages
 	@echo "Creating GitHub release v$(VERSION) with all packages..." # Полный релиз
+	./scripts/bump_version.sh $(VERSION) # Обновление версий в файлах
+	git add -A && git commit -m "chore: bump to v$(VERSION)" || true # Коммит версии
+	git push # Пуш изменений
 	git tag -a v$(VERSION) -m "Release v$(VERSION)" || true # Создание тега
 	git push origin v$(VERSION) || true # Пуш тега
 	gh release create v$(VERSION) \
@@ -137,6 +140,10 @@ publish-all: packages
 		--title "Vol v$(VERSION)" \
 		--notes "Universal build tool with rich output" # Загрузка всех пакетов
 	@echo "Published v$(VERSION) with all packages!"
+
+# Быстрое обновление версии
+bump:
+	@./scripts/bump_version.sh $(VERSION)
 
 
 
