@@ -98,10 +98,18 @@ clean:
 dev: venv
 	$(PIP) install rich # Установка rich для разработки
 
-.PHONY: venv install build install-bin test clean dev publish packages publish-all
+.PHONY: venv install build install-bin test clean dev publish packages publish-all bump
 
-# Версия (можно переопределить: make publish VERSION=2.1.0)
-VERSION ?= 2.0.3
+# Получение текущей версии из pyproject.toml и автоинкремент
+CURRENT_VERSION := $(shell grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+MAJOR := $(word 1,$(subst ., ,$(CURRENT_VERSION)))
+MINOR := $(word 2,$(subst ., ,$(CURRENT_VERSION)))
+PATCH := $(word 3,$(subst ., ,$(CURRENT_VERSION)))
+NEXT_PATCH := $(shell echo $$(($(PATCH) + 1)))
+AUTO_VERSION := $(MAJOR).$(MINOR).$(NEXT_PATCH)
+
+# Версия: по умолчанию автоинкремент, или явно задать VERSION=x.y.z
+VERSION ?= $(AUTO_VERSION)
 GOARCH ?= arm64
 
 # Создание пакетов для всех менеджеров
