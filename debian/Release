@@ -1,0 +1,7 @@
+Origin: Vol
+Label: Vol
+Suite: stable
+Codename: stable
+Architectures: amd64 arm64
+Components: main
+Description: Vol build tool repository
