@@ -26,15 +26,24 @@ jobs:
           mkdir -p dist/repo
           # Download all deb files from the release
           gh release download ${{ github.event.release.tag_name }} --pattern "*.deb" --dir dist/repo || true
+          # Remove any malformed packages (with '..' in version)
+          rm -f dist/repo/*..* 2>/dev/null || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Repo Index
         working-directory: dist/repo
         run: |
-          # Generate Packages
-          dpkg-scanpackages . /dev/null > Packages
-          gzip -k -f Packages
+          # Check if there are any valid deb files
+          if ls *.deb 1> /dev/null 2>&1; then
+            # Generate Packages
+            dpkg-scanpackages . /dev/null > Packages
+            gzip -k -f Packages
+          else
+            echo "No valid .deb files found"
+            touch Packages
+            gzip -k -f Packages
+          fi
           
           # Generate Release
           echo "Origin: Vol" > Release
