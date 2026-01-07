@@ -121,9 +121,10 @@ def run_command_with_output(cmd: str, description: str, ignore_errors: bool, log
         
         # If process still running OR progress bar is active, use Live display
         if process.poll() is None or progress is not None:
-            # Redraw static output before showing Live panel
+            # In slow mode, redraw static output before showing Live panel
             from .output import redraw_from_tmp_log
-            redraw_from_tmp_log()
+            if not ui_config.speed_mode:
+                redraw_from_tmp_log()
             
             with Live(console=console, refresh_per_second=15, transient=True) as live:
                 # Build initial components with panel if any output already
@@ -246,8 +247,9 @@ def run_command_with_output(cmd: str, description: str, ignore_errors: bool, log
                     display = Group(*components)
                     live.update(display)
             # Live handles cleanup with transient=True
-            # Redraw static output after Live panel closes
-            redraw_from_tmp_log()
+            # In slow mode, redraw static output after Live panel closes
+            if not ui_config.speed_mode:
+                redraw_from_tmp_log()
 
         else:
             # Process finished quickly, just read remaining output

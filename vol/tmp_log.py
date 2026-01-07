@@ -1,14 +1,31 @@
 """Temporary log file management for static output"""
 
 import os
+import atexit
 from pathlib import Path
 from typing import Optional
 
-# Default temp log file
-DEFAULT_TMP_LOG = ".vol.tmp"
+# Default temp log file base
+DEFAULT_TMP_LOG_BASE = ".vol"
+DEFAULT_TMP_LOG_EXT = ".tmp"
 
 # Global temp log instance
 _tmp_log: Optional["TmpLog"] = None
+
+
+def find_available_tmp_path() -> Path:
+    """Find an available tmp log file path (.vol.tmp, .vol2.tmp, .vol3.tmp, ...)"""
+    base_path = Path(f"{DEFAULT_TMP_LOG_BASE}{DEFAULT_TMP_LOG_EXT}")
+    if not base_path.exists():
+        return base_path
+    
+    # Find next available number
+    n = 2
+    while True:
+        path = Path(f"{DEFAULT_TMP_LOG_BASE}{n}{DEFAULT_TMP_LOG_EXT}")
+        if not path.exists():
+            return path
+        n += 1
 
 
 class TmpLog:
@@ -18,11 +35,22 @@ class TmpLog:
     With tmp log - we save static output to file and redraw on panel open/close.
     """
     
-    def __init__(self, path: str = DEFAULT_TMP_LOG):
-        self.path = Path(path)
+    def __init__(self, path: Path = None):
+        if path is None:
+            path = find_available_tmp_path()
+        self.path = path
         self.lines: list[str] = []
-        # Clear file on init
-        self.clear()
+        # Create empty file to reserve the name
+        self._create_file()
+        # Register cleanup on exit
+        atexit.register(self.cleanup)
+    
+    def _create_file(self):
+        """Create the temp log file"""
+        try:
+            self.path.write_text("")
+        except Exception:
+            pass
     
     def clear(self):
         """Clear the temp log file"""
@@ -73,13 +101,14 @@ def get_tmp_log() -> TmpLog:
     return _tmp_log
 
 
-def init_tmp_log(path: str = DEFAULT_TMP_LOG):
-    """Initialize the temp log with a path"""
+def init_tmp_log() -> TmpLog:
+    """Initialize the temp log with an available path"""
     global _tmp_log
-    _tmp_log = TmpLog(path)
+    _tmp_log = TmpLog()
     return _tmp_log
 
 
 def log_static_line(line: str):
     """Log a static output line to the temp log"""
     get_tmp_log().add_line(line)
+

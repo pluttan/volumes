@@ -134,6 +134,9 @@ class UIConfig:
     clear_screen: bool = True
     bottom_up: bool = True
     
+    # Speed mode: True = fast (no redraw), False = slow (redraw from .vol.tmp on panel open/close)
+    speed_mode: bool = False
+    
     # Header/Footer
     show_header: bool = True
     show_footer: bool = True
@@ -168,6 +171,7 @@ class UIConfig:
     color_theme: str = "default"
     
     theme: Theme = field(default_factory=Theme)
+
     
     @classmethod
     def from_dict(cls, data: dict) -> "UIConfig":
@@ -176,6 +180,7 @@ class UIConfig:
         return cls(
             clear_screen=data.get("clear_screen", True),
             bottom_up=data.get("bottom_up", True),
+            speed_mode=data.get("speed_mode", False),
             show_header=data.get("show_header", True),
             show_footer=data.get("show_footer", True),
             header_text=data.get("header_text", "🔨 Make Build"),
@@ -195,6 +200,7 @@ class UIConfig:
             color_theme=color_theme,
             theme=Theme.from_dict(theme_data, preset_name=color_theme),
         )
+
 
 
 # Global UI config instance

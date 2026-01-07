@@ -151,8 +151,8 @@ def print_status(status: str, message: str, time_str: Optional[str] = None, task
     
     console.print(grid)
     
-    # Log static output (non-WAIT statuses) to tmp log for redraw
-    if status != "wait":
+    # Log static output (non-WAIT statuses) to tmp log for redraw (only in slow mode)
+    if status != "wait" and not ui.speed_mode:
         from .tmp_log import get_tmp_log
         from io import StringIO
         from rich.console import Console as RichConsole
@@ -163,6 +163,7 @@ def print_status(status: str, message: str, time_str: Optional[str] = None, task
         temp_console.print(grid)
         ansi_line = string_io.getvalue().rstrip('\n')
         get_tmp_log().add_line(ansi_line)
+
 
 
 
