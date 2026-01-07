@@ -121,9 +121,14 @@ def run_command_with_output(cmd: str, description: str, ignore_errors: bool, log
         
         # If process still running OR progress bar is active, use Live display
         if process.poll() is None or progress is not None:
+            # Redraw static output before showing Live panel
+            from .output import redraw_from_tmp_log
+            redraw_from_tmp_log()
+            
             with Live(console=console, refresh_per_second=15, transient=True) as live:
                 # Build initial components with panel if any output already
                 initial_components = [desc_grid]
+
                 
                 if buffer.line_count() > 0:
                     panel = Panel(
@@ -240,7 +245,10 @@ def run_command_with_output(cmd: str, description: str, ignore_errors: bool, log
                     components.append(Text("\033[J"))
                     display = Group(*components)
                     live.update(display)
-                # Live handles cleanup with transient=True
+            # Live handles cleanup with transient=True
+            # Redraw static output after Live panel closes
+            redraw_from_tmp_log()
+
         else:
             # Process finished quickly, just read remaining output
             for line in process.stdout:

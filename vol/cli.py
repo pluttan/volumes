@@ -14,6 +14,7 @@ from .runner import VolRunner
 from .script import run_script
 from .makefile import list_makefile_targets, run_makefile
 from .logger import Logger
+from .tmp_log import init_tmp_log
 
 
 def list_tasks(config: VolConfig):
@@ -87,10 +88,13 @@ Examples:
     parser.add_argument("-c", "--config", default="vol.toml", help="Config file (default: vol.toml)")
     parser.add_argument("-l", "--list", action="store_true", help="List all tasks")
     parser.add_argument("--completion", action="store_true", help=argparse.SUPPRESS)
-    parser.add_argument("-v", "--version", action="version", version="vol 2.0.19")
+    parser.add_argument("-v", "--version", action="version", version="vol 2.0.21")
     
     # Use parse_known_args to allow passing extra args to commands (e.g. VERSION=2.0.0)
     args, extra_args = parser.parse_known_args()
+    
+    # Initialize temporary log file for static output
+    init_tmp_log()
     
     # Load config early to get UI settings
     config_path = Path(args.config)

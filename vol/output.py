@@ -44,9 +44,11 @@ def get_status_color(status: str) -> str:
     return colors.get(status, "white")
 
 
+
 def clear_screen():
     """Clear terminal screen"""
-    console.clear()
+    import os
+    os.system('clear')
 
 
 def clear_line():
@@ -148,6 +150,20 @@ def print_status(status: str, message: str, time_str: Optional[str] = None, task
         grid.add_row(status_text)
     
     console.print(grid)
+    
+    # Log static output (non-WAIT statuses) to tmp log for redraw
+    if status != "wait":
+        from .tmp_log import get_tmp_log
+        from io import StringIO
+        from rich.console import Console as RichConsole
+        
+        # Capture output with ANSI colors
+        string_io = StringIO()
+        temp_console = RichConsole(file=string_io, force_terminal=True, width=console.width)
+        temp_console.print(grid)
+        ansi_line = string_io.getvalue().rstrip('\n')
+        get_tmp_log().add_line(ansi_line)
+
 
 
 def print_header():
@@ -169,4 +185,60 @@ def print_error_footer():
     if ui.show_footer and ui.show_error_message:
         console.print()
         print_status("info", ui.error_message)
+
+
+
+def redraw_from_tmp_log():
+    """Clear screen and redraw static output from .vol.tmp file.
+    
+    This is called when opening/closing command output panels to
+    restore the static output (OK/ERROR lines) from the tmp log.
+    """
+    from .config import get_ui_config
+    from .tmp_log import get_tmp_log
+    
+    ui = get_ui_config()
+    tmp_log = get_tmp_log()
+    
+    # Read lines from tmp log
+    lines = tmp_log.get_lines()
+    
+    # Clear screen first
+    if ui.clear_screen:
+        clear_screen()
+    
+    # Calculate content height including header (3 lines if shown)
+    header_height = 3 if ui.show_header else 0
+    content_height = len(lines) + header_height
+    
+    # For bottom_up mode, add padding to push content to bottom of screen
+    height = get_terminal_height()
+    padding = max(0, height - content_height - 1)
+    
+    # Print padding lines first
+    if padding > 0:
+        sys.stdout.write("\n" * padding)
+        sys.stdout.flush()
+    
+    # Print header after padding
+    if ui.show_header:
+        console.print()
+        console.print(f"[bold]{ui.header_text}[/bold]", style=ui.theme.header)
+        console.print()
+    
+    # Print all saved lines with ANSI colors preserved
+    for line in lines:
+        # Lines already contain ANSI codes, use sys.stdout directly
+        sys.stdout.write(line + "\n")
+    sys.stdout.flush()
+
+
+def log_static_output(line: str):
+    """Log a static output line to the tmp log file.
+    
+    This saves the formatted status line so it can be redrawn
+    when command output panels are opened/closed.
+    """
+    from .tmp_log import get_tmp_log
+    get_tmp_log().add_line(line)
 

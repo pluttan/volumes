@@ -17,7 +17,7 @@
 #syntax_theme = "ansi_dark" # monokai, ansi_dark, catppuccin, etc.
 #
 #panel_width = 100          # Ширина панели вывода
-#panel_height = 1           # Высота панели (строк)
+#panel_height = 3           # Высота панели (строк)
 #wrap_lines = true         # true = переносить, false = резать
 #delay_ms = 100             # Задержка перед появлением панели (мс)
 #
@@ -150,6 +150,7 @@ publish-all:
 		dist/packages/*.pkg.tar.zst \
 		--title "Vol v$(VERSION)" \
 		--notes "Universal build tool with rich output" # Загрузка всех пакетов
+	./scripts/sync_homebrew_tap.sh $(VERSION) # Синхронизация Homebrew tap
 	@echo "Published v$(VERSION) with all packages!"
 
 # Быстрое обновление версии
