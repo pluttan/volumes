@@ -56,6 +56,23 @@ if [ "$OS" = "Darwin" ]; then
         curl -fsSL "$BASE_URL/vol" -o /tmp/vol
         chmod +x /tmp/vol
         sudo mv /tmp/vol /usr/local/bin/vol
+        
+        # Install zsh completion
+        info "Installing shell completions..."
+        sudo mkdir -p /usr/local/share/zsh/site-functions
+        curl -fsSL "$BASE_URL/_vol" -o /tmp/_vol
+        sudo mv /tmp/_vol /usr/local/share/zsh/site-functions/_vol
+        
+        # Install bash completion
+        sudo mkdir -p /usr/local/share/bash-completion/completions
+        curl -fsSL "$BASE_URL/vol.bash" -o /tmp/vol.bash
+        sudo mv /tmp/vol.bash /usr/local/share/bash-completion/completions/vol
+        
+        # Install fish completion
+        sudo mkdir -p /usr/local/share/fish/vendor_completions.d
+        curl -fsSL "$BASE_URL/vol.fish" -o /tmp/vol.fish
+        sudo mv /tmp/vol.fish /usr/local/share/fish/vendor_completions.d/vol.fish
+        
         success "Installed to /usr/local/bin/vol"
     fi
 
@@ -108,6 +125,22 @@ elif [ "$OS" = "Linux" ]; then
         curl -fsSL "$BASE_URL/vol" -o /tmp/vol
         chmod +x /tmp/vol
         sudo mv /tmp/vol /usr/local/bin/vol
+        
+        # Install zsh completion
+        info "Installing shell completions..."
+        sudo mkdir -p /usr/share/zsh/site-functions
+        curl -fsSL "$BASE_URL/_vol" -o /tmp/_vol
+        sudo mv /tmp/_vol /usr/share/zsh/site-functions/_vol
+        
+        # Install bash completion
+        sudo mkdir -p /usr/share/bash-completion/completions
+        curl -fsSL "$BASE_URL/vol.bash" -o /tmp/vol.bash
+        sudo mv /tmp/vol.bash /usr/share/bash-completion/completions/vol
+        
+        # Install fish completion
+        sudo mkdir -p /usr/share/fish/vendor_completions.d
+        curl -fsSL "$BASE_URL/vol.fish" -o /tmp/vol.fish
+        sudo mv /tmp/vol.fish /usr/share/fish/vendor_completions.d/vol.fish
     fi
 
 else
@@ -118,4 +151,5 @@ echo ""
 success "Vol installed successfully!"
 echo ""
 vol --version 2>/dev/null || warn "Run 'vol --version' to verify installation"
+info "Restart your shell or run 'exec zsh' for tab completion to work"
 echo ""

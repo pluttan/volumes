@@ -122,6 +122,9 @@ publish: build
 	git tag -a v$(VERSION) -m "Release v$(VERSION)" # Создание тега
 	git push origin v$(VERSION) # Пуш тега
 	gh release create v$(VERSION) dist/vol \
+		completions/zsh/_vol \
+		completions/bash/vol.bash \
+		completions/fish/vol.fish \
 		--title "Vol v$(VERSION)" \
 		--notes "Universal build tool with rich output" # Создание релиза с бинарником
 	@echo "Published v$(VERSION) to GitHub!"
@@ -138,6 +141,9 @@ publish-all:
 	git push origin v$(VERSION) || true # Пуш тега
 	gh release create v$(VERSION) \
 		dist/vol \
+		completions/zsh/_vol \
+		completions/bash/vol.bash \
+		completions/fish/vol.fish \
 		dist/packages/*.deb \
 		dist/packages/*.rpm \
 		dist/packages/*.apk \

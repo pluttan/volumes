@@ -1,10 +1,14 @@
 #compdef vol
 
 _vol() {
-  local -a commands
-  commands=($(vol --completions 2>/dev/null))
-  if [ ${#commands[@]} -gt 0 ]; then
-    _describe -t commands 'vol commands' commands
-  fi
+    local -a commands
+    # caching logic could be added here if needed, but for now we run it every time
+    # to support dynamic tasks/scripts/makefiles in current directory
+    commands=($(vol --completion 2>/dev/null))
+    
+    if [ ${#commands} -gt 0 ]; then
+        _wanted commands expl 'command' compadd -a commands
+    fi
 }
-compdef _vol vol
+
+

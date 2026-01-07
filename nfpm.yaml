@@ -14,12 +14,16 @@ contents:
     dst: /usr/local/bin/vol
     file_info:
       mode: 0755
-  - src: ./completions/bash/vol
+  - src: ./completions/zsh/_vol
+    dst: /usr/share/zsh/site-functions/_vol
+    file_info:
+      mode: 0644
+  - src: ./completions/bash/vol.bash
     dst: /usr/share/bash-completion/completions/vol
     file_info:
       mode: 0644
-  - src: ./completions/zsh/_vol
-    dst: /usr/share/zsh/site-functions/_vol
+  - src: ./completions/fish/vol.fish
+    dst: /usr/share/fish/vendor_completions.d/vol.fish
     file_info:
       mode: 0644
 
