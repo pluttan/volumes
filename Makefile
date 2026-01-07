@@ -156,5 +156,8 @@ publish-all:
 bump:
 	@./scripts/bump_version.sh $(VERSION)
 
+# Синхронизация Homebrew tap
+sync-tap:
+	./scripts/sync_homebrew_tap.sh $(VERSION) # Синхронизация tap
 
-
+.PHONY: venv install build install-bin test clean dev publish packages publish-all bump sync-tap
