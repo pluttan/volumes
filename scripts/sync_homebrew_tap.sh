@@ -36,7 +36,7 @@ sed "s/PLACEHOLDER_SHA256/$VOL_SHA/; s/PLACEHOLDER_ZSH_SHA256/$ZSH_SHA/; s/PLACE
 cd /tmp/homebrew-tap
 git add .
 git commit -m "vol $VERSION"
-git push
+git push --force
 
 # Cleanup
 rm -rf /tmp/homebrew-tap
