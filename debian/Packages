@@ -1,14 +1,14 @@
 Package: vol
-Version: 2.0.23
+Version: 2.0.24
 Architecture: arm64
 Maintainer: pluttan <pluttan@example.com>
-Installed-Size: 18716
+Installed-Size: 13904
 Depends: libc6
-Filename: ./vol_2.0.23_arm64.deb
-Size: 18961768
-MD5sum: 9befd21f09659a12b0971fde5619350f
-SHA1: df5d1190fae19fffab5709357f79bf11aacfbbe2
-SHA256: 34f67d4c330699b9d3d1f2ebfcb949596076b7c204b0394d414fdb13f7bbf0c6
+Filename: ./vol_2.0.24_arm64.deb
+Size: 14053324
+MD5sum: 1a333fa4447a13b0d7b9fe5dcf861c9e
+SHA1: 9cc4da5fc6605ef61db131d37a64d0f6f68ba326
+SHA256: fb0b60281fb7b519f121e5a2b1f18ad5a18afb305a78e5497a74044890572b76
 Priority: optional
 Homepage: https://github.com/pluttan/volumes
 Description: Universal build tool with beautiful terminal output
