@@ -1,14 +1,8 @@
-![Vol Header](header.png)
-
 <div align="center">
 
 # Vol
 
 **Универсальный инструмент сборки с красивым выводом в терминал**
-
-[![License](https://img.shields.io/github/license/pluttan/volumes?style=for-the-badge&color=2C2C2C&labelColor=1E1E1E)](https://github.com/pluttan/volumes/blob/main/LICENSE)
-[![Release](https://img.shields.io/github/v/release/pluttan/volumes?style=for-the-badge&color=2C2C2C&labelColor=1E1E1E)](https://github.com/pluttan/volumes/releases)
-[![Python](https://img.shields.io/badge/python-3.11+-2C2C2C?style=for-the-badge&logo=python&labelColor=1E1E1E)](https://python.org)
 
 </div>
 
@@ -16,29 +10,65 @@ Vol — красивый и гибкий инструмент сборки с б
 
 ## ■ Возможности
 
-- ❖ **Живая панель вывода** с настраиваемым размером
-- ❖ **Цветовые темы**: catppuccin, monokai, dracula, nord или произвольные hex-цвета
-- ❖ **Прогресс-бары**: основной + подзадача с настраиваемыми цветами
-- ❖ **Подсветка синтаксиса** для команд
-- ❖ **Разбор Makefile**: переменные `$(VAR)`/`${VAR}`, зависимости, продолжение строки `\`, тихие `@` команды
-- ❖ **Функции GNU Make**: `$(shell)`, `$(subst)`, `$(patsubst)`, `$(wildcard)`, `$(word)`, `$(sort)` и другие
-- ❖ **Встроенный конфиг** в Makefile/скриптах (блок `#--config:` … `#--end`)
-- ❖ **Определение задач через TOML** с зависимостями и описаниями команд
-- ❖ **Shell-автодополнение** для bash, zsh и fish
+- ❖ **Живая панель вывода** — настраиваемые ширина и высота панели
+- ❖ **Цветовые темы** — catppuccin, monokai, dracula, nord или произвольные hex-цвета
+- ❖ **Прогресс-бары** — основной и для подзадач с настраиваемыми цветами
+- ❖ **Подсветка синтаксиса** — для команд в панели вывода
+- ❖ **Разбор Makefile** — переменные `$(VAR)`/`${VAR}`, зависимости, продолжение строки `\`, тихие `@` команды
+- ❖ **Функции GNU Make** — `$(shell)`, `$(subst)`, `$(patsubst)`, `$(wildcard)`, `$(word)`, `$(sort)` и другие
+- ❖ **Встроенный конфиг** — настройки прямо в Makefile или скриптах через блок `#--config:` … `#--end`
+- ❖ **Определение задач в TOML** — с зависимостями и описаниями для каждой команды
+- ❖ **Shell-автодополнение** — для bash, zsh и fish
+
+## ■ Стек
+
+<div align="center">
+
+| Компонент | Технология |
+|-----------|-----------|
+| Runtime | Python 3.11+ |
+| Terminal UI | Rich (bundled in binary) |
+| Config formats | TOML, Makefile, Shell scripts |
+| Shell completions | bash, zsh, fish |
+
+</div>
+
+## ■ Как это работает
+
+```
+1. Vol считывает определения задач из Makefile, vol.toml или shell-скрипта.
+2. Опциональные встроенные блоки конфига (#--config: … #--end) переопределяют глобальные настройки для каждого файла.
+3. Зависимости задач разрешаются, переменные и функции GNU Make раскрываются.
+4. Команды каждой задачи выполняются последовательно, живой вывод отображается в прокручиваемой панели.
+5. Основной прогресс-бар, прогресс-бар подзадачи, метки статуса и метки времени обновляются на протяжении всей сборки.
+```
+
+## ■ Скриншоты
+
+<div align="center">
+
+![Screenshot](screenshots/main.png)
+
+*Основной интерфейс сборки с живой панелью вывода и прогресс-барами*
+
+</div>
+
+## ■ Использование
+
+```bash
+# Быстрая установка (одна команда)
+curl -fsSL https://raw.githubusercontent.com/pluttan/volumes/main/install.sh | sudo sh
+
+vol make:build         # Запустить цель 'build' из Makefile
+vol make:test          # Запустить цель 'test'
+vol build              # Запустить задачу 'build' из vol.toml
+vol script.sh          # Запустить shell-скрипт с синтаксисом vol
+vol --list             # Показать доступные задачи
+```
 
 ## ■ Установка
 
-### Быстрая установка (одна команда)
-
-Автоматически устанавливает нативный пакет для вашей ОС.
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/pluttan/volumes/main/install.sh | sudo sh
-```
-
 ### APT-репозиторий (Debian/Ubuntu)
-
-Чтобы использовать `apt install`, добавьте репозиторий:
 
 ```bash
 echo "deb [trusted=yes] https://pluttan.github.io/volumes/debian/ ./" | sudo tee /etc/apt/sources.list.d/vol.list
@@ -90,38 +120,26 @@ sudo apk add --allow-untrusted vol_2.0.24_linux_arm64.apk
 ```
 
 ### Установка бинарника вручную
+
 ```bash
-# Скачать последний релиз
 curl -L https://github.com/pluttan/volumes/releases/latest/download/vol -o vol
 chmod +x vol
 sudo mv vol /usr/local/bin/
 ```
 
 ### Из исходников
+
 ```bash
 git clone https://github.com/pluttan/volumes.git
 cd volumes
 make build
-sudo make install-bin  # Устанавливает в /usr/local/bin
-```
-
-### Требования
-- Python 3.11+
-- Библиотека `rich` (входит в состав бинарника)
-
-## ■ Запуск
-
-```bash
-vol make:build         # Запустить цель 'build' из Makefile
-vol make:test          # Запустить цель 'test'
-vol build              # Запустить задачу 'build' из vol.toml
-vol script.sh          # Запустить shell-скрипт с синтаксисом vol
-vol --list             # Показать доступные задачи
+sudo make install-bin
 ```
 
 ## ■ Конфигурация
 
 ### Встроенный конфиг (в Makefile)
+
 ```makefile
 #--config:
 #clear_screen = false
@@ -146,6 +164,7 @@ build:
 ```
 
 ### vol.toml
+
 ```toml
 [config]
 header_text = "My Project"
@@ -201,16 +220,6 @@ commands = ["npm install # Installing dependencies"]
 | `syntax_theme` | `ansi_dark` | Тема Pygments для подсветки кода |
 | `color_theme` | `default` | Название цветового пресета |
 | `log_file` | `./vol.log` | Путь к файлу лога вывода команд |
-
-</div>
-
-## ■ Скриншоты
-
-<div align="center">
-
-![Screenshot](screenshots/main.png)
-
-*Основной интерфейс сборки с живой панелью вывода и прогресс-барами*
 
 </div>
 
