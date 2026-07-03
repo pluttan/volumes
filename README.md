@@ -1,14 +1,8 @@
-![Vol Header](header.png)
-
 <div align="center">
 
 # Vol
 
 **Universal build tool with beautiful terminal output**
-
-[![License](https://img.shields.io/github/license/pluttan/volumes?style=for-the-badge&color=2C2C2C&labelColor=1E1E1E)](https://github.com/pluttan/volumes/blob/main/LICENSE)
-[![Release](https://img.shields.io/github/v/release/pluttan/volumes?style=for-the-badge&color=2C2C2C&labelColor=1E1E1E)](https://github.com/pluttan/volumes/releases)
-[![Python](https://img.shields.io/badge/python-3.11+-2C2C2C?style=for-the-badge&logo=python&labelColor=1E1E1E)](https://python.org)
 
 </div>
 
@@ -16,27 +10,65 @@ Vol is a beautiful, flexible build tool with rich terminal output. It supports *
 
 ## ■ Features
 
-- ❖ **Live output panel** with configurable size
-- ❖ **Color themes**: catppuccin, monokai, dracula, nord, or custom hex colors
-- ❖ **Progress bars**: main + sub-task with custom colors
-- ❖ **Syntax highlighting** for commands
-- ❖ **Makefile variables** support: `$(VAR)`, line continuation `\`
-- ❖ **Inline config** in Makefile/scripts
-- ❖ **TOML task definitions** with dependencies
+- ❖ **Live output panel** — configurable panel width and height
+- ❖ **Color themes** — catppuccin, monokai, dracula, nord, or custom hex colors
+- ❖ **Progress bars** — main and sub-task with custom colors
+- ❖ **Syntax highlighting** — for commands in the output panel
+- ❖ **Makefile parsing** — variables `$(VAR)`/`${VAR}`, dependencies, line continuation `\`, silent `@` commands
+- ❖ **GNU Make functions** — `$(shell)`, `$(subst)`, `$(patsubst)`, `$(wildcard)`, `$(word)`, `$(sort)`, and more
+- ❖ **Inline config** — embed settings directly in Makefile or scripts via `#--config:` … `#--end` block
+- ❖ **TOML task definitions** — with dependencies and per-command descriptions
+- ❖ **Shell completions** — for bash, zsh, and fish
+
+## ■ Stack
+
+<div align="center">
+
+| Component | Technology |
+|-----------|-----------|
+| Runtime | Python 3.11+ |
+| Terminal UI | Rich (bundled in binary) |
+| Config formats | TOML, Makefile, Shell scripts |
+| Shell completions | bash, zsh, fish |
+
+</div>
+
+## ■ How It Works
+
+```
+1. Vol reads task definitions from a Makefile, vol.toml, or shell script.
+2. Optional inline config blocks (#--config: … #--end) override global settings per file.
+3. Task dependencies are resolved and GNU Make variables/functions are expanded.
+4. Each task's commands run in sequence with live output shown in a scrolling panel.
+5. Main and sub-task progress bars, status labels, and timestamps update throughout the build.
+```
+
+## ■ Screenshots
+
+<div align="center">
+
+![Screenshot](screenshots/main.png)
+
+*Main build interface with live output panel and progress bars*
+
+</div>
+
+## ■ Usage
+
+```bash
+# Quick install (one-line)
+curl -fsSL https://raw.githubusercontent.com/pluttan/volumes/main/install.sh | sudo sh
+
+vol make:build         # Run 'build' target from Makefile
+vol make:test          # Run 'test' target
+vol build              # Run 'build' task from vol.toml
+vol script.sh          # Run shell script with vol syntax
+vol --list             # List available tasks
+```
 
 ## ■ Installation
 
-### Quick Install (One-line)
-
-Installs the native package for your OS automatically.
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/pluttan/volumes/main/install.sh | sudo sh
-```
-
 ### APT Repository (Debian/Ubuntu)
-
-To use `apt install`, add the repository:
 
 ```bash
 echo "deb [trusted=yes] https://pluttan.github.io/volumes/debian/ ./" | sudo tee /etc/apt/sources.list.d/vol.list
@@ -65,61 +97,49 @@ Download the latest package for your distribution from the [Releases page](https
 
 **Debian/Ubuntu**
 ```bash
-wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.deb
-sudo apt install ./vol_2.0.0_linux_arm64.deb
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.24_linux_arm64.deb
+sudo apt install ./vol_2.0.24_linux_arm64.deb
 ```
 
 **Fedora/RHEL**
 ```bash
-wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.rpm
-sudo rpm -i vol_2.0.0_linux_arm64.rpm
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.24_linux_arm64.rpm
+sudo rpm -i vol_2.0.24_linux_arm64.rpm
 ```
 
 **Arch Linux**
 ```bash
-wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.pkg.tar.zst
-sudo pacman -U vol_2.0.0_linux_arm64.pkg.tar.zst
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.24_linux_arm64.pkg.tar.zst
+sudo pacman -U vol_2.0.24_linux_arm64.pkg.tar.zst
 ```
 
 **Alpine Linux**
 ```bash
-wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.0_linux_arm64.apk
-sudo apk add --allow-untrusted vol_2.0.0_linux_arm64.apk
+wget https://github.com/pluttan/volumes/releases/latest/download/vol_2.0.24_linux_arm64.apk
+sudo apk add --allow-untrusted vol_2.0.24_linux_arm64.apk
 ```
 
 ### Manual Binary Install
+
 ```bash
-# Download latest release
 curl -L https://github.com/pluttan/volumes/releases/latest/download/vol -o vol
 chmod +x vol
 sudo mv vol /usr/local/bin/
 ```
 
 ### From Source
+
 ```bash
 git clone https://github.com/pluttan/volumes.git
 cd volumes
 make build
-sudo make install-bin  # Installs to /usr/local/bin
-```
-
-### Requirements
-- Python 3.11+
-- `rich` library (bundled in binary)
-
-## ■ Usage
-
-```bash
-vol make:build         # Run 'build' target from Makefile
-vol make:test          # Run 'test' target
-vol build              # Run 'build' task from vol.toml
-vol script.sh          # Run shell script with vol syntax
-vol --list             # List available tasks
+sudo make install-bin
 ```
 
 ## ■ Configuration
 
 ### Inline Config (in Makefile)
+
 ```makefile
 #--config:
 #clear_screen = false
@@ -144,6 +164,7 @@ build:
 ```
 
 ### vol.toml
+
 ```toml
 [config]
 header_text = "My Project"
@@ -162,6 +183,8 @@ commands = ["npm install # Installing dependencies"]
 
 ## ■ Available Themes
 
+<div align="center">
+
 | Theme | Description |
 |-------|-------------|
 | `default` | Classic blue/green/red |
@@ -170,15 +193,21 @@ commands = ["npm install # Installing dependencies"]
 | `dracula` | Dark purple aesthetic |
 | `nord` | Arctic, bluish color palette |
 
+</div>
+
 ## ■ All Config Options
+
+<div align="center">
 
 | Option | Default | Description |
 |--------|---------|-------------|
 | `clear_screen` | `true` | Clear terminal before run |
 | `bottom_up` | `true` | Output grows from bottom |
+| `speed_mode` | `false` | Skip redraw on panel open/close (faster) |
 | `show_header` | `true` | Show header text |
 | `show_footer` | `true` | Show error footer |
-| `header_text` | `Make Build` | Header message |
+| `header_text` | `🔨 Make Build` | Header message |
+| `error_message` | `Выполнение прервано из-за ошибки` | Error footer message |
 | `show_main_progress` | `true` | Main progress bar |
 | `show_sub_progress` | `true` | Sub-task progress bar |
 | `show_status_label` | `true` | `[OK]`/`[WAIT]` labels |
@@ -190,6 +219,9 @@ commands = ["npm install # Installing dependencies"]
 | `delay_ms` | `100` | Delay before showing panel |
 | `syntax_theme` | `ansi_dark` | Pygments theme for code |
 | `color_theme` | `default` | Color preset name |
+| `log_file` | `./vol.log` | Path to the command output log |
+
+</div>
 
 ## ■ License
 
